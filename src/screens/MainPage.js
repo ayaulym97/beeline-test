@@ -1,17 +1,17 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import {CustomList} from '../common';
-import {addProducts, onChange} from '../store/actions/temporaryAction';
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+import { CustomList } from "../common";
+import { addProducts, onChange } from "../store/actions/temporaryAction";
 
-import products from '../productData/products.json';
+import products from "../productData/products.json";
 
-class MainPage extends Component {
+class MainPage extends PureComponent {
   state = {
     page: 1,
     refreshing: false,
     loading: false,
     products: [],
-    searchTxt: '',
+    searchTxt: "",
   };
   componentDidMount() {
     this.defaultProducts();
@@ -21,31 +21,33 @@ class MainPage extends Component {
       refreshing: false,
     });
     let range = products._embedded.products.slice(0, 6);
-    this.props.onChange('products', range);
+    this.props.onChange("products", range);
   };
   handleLoadMore = () => {
-    this.setState(
-      (state) => ({
-        refreshing: false,
-        loading: true,
-        page: state.page + 1,
-      }),
-      () => this.loadProducts(),
-    );
+    if (!this.state.loading) {
+      this.setState(
+        (state) => ({
+          loading: true,
+          page: state.page + 1,
+        }),
+        () => this.loadProducts()
+      );
+    }
   };
   handleRefresh = () => {
+    this.props.onChange("products", []);
     this.setState(
       {
         page: 1,
         refreshing: true,
       },
-      () => this.defaultProducts(),
+      () => this.defaultProducts()
     );
   };
 
   loadProducts = () => {
     const rangeValue = 7;
-    const {page} = this.state;
+    const { page } = this.state;
     var start = (page - 1) * rangeValue;
     var end = page * rangeValue;
     let range = products._embedded.products.slice(start, end);
@@ -62,20 +64,20 @@ class MainPage extends Component {
       page: 1,
       searchTxt: text,
     });
-    if (text !== '') {
+    if (text !== "") {
       const totalProducts = products._embedded.products;
       var productsWithName = totalProducts.filter((e) =>
-        e.name.toLowerCase().includes(text.toLowerCase()),
+        e.name.toLowerCase().includes(text.toLowerCase())
       );
-      this.props.onChange('products', productsWithName);
+      this.props.onChange("products", productsWithName);
     } else {
       this.defaultProducts();
     }
   };
 
   handleProductPress = (item) => {
-    this.props.onChange('productDetail', item.item);
-    this.props.navigation.navigate('ProductPage');
+    this.props.onChange("productDetail", item.item);
+    this.props.navigation.navigate("ProductPage");
   };
 
   render() {
